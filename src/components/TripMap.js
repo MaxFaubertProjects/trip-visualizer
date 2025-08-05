@@ -21,6 +21,8 @@ const TripMap = () => {
   const [speedFilter, setSpeedFilter] = useState({ min: 0, max: 200 });
   const [weatherFilter, setWeatherFilter] = useState('all');
   const [samplingRate, setSamplingRate] = useState(3600);
+  const [error, setError] = useState(null);
+  const [dataSource, setDataSource] = useState(null);
 
   useEffect(() => {
     loadTripData();
@@ -28,7 +30,21 @@ const TripMap = () => {
 
   const loadTripData = async () => {
     try {
-      const response = await fetch('/enhanced_merged_trip_data_fixed.csv');
+      // Try to load the smaller sample file first
+      let response = await fetch('/sample_trip_data.csv');
+      
+      if (!response.ok) {
+        // Fallback to the original file
+        response = await fetch('/enhanced_merged_trip_data_fixed.csv');
+        
+        if (!response.ok) {
+          throw new Error(`Failed to load CSV file: ${response.status} ${response.statusText}`);
+        }
+        setDataSource('enhanced_merged_trip_data_fixed.csv');
+      } else {
+        setDataSource('sample_trip_data.csv');
+      }
+      
       const csvText = await response.text();
       
       Papa.parse(csvText, {
@@ -48,16 +64,24 @@ const TripMap = () => {
           console.log(`Sampled data points: ${sampledData.length}`);
           console.log(`Sampling ratio: 1 in ${samplingRate}`);
           
+          if (sampledData.length === 0) {
+            console.error('No valid data points found after filtering');
+            setLoading(false);
+            return;
+          }
+          
           setTripData(sampledData);
           setLoading(false);
         },
         error: (error) => {
           console.error('Error parsing CSV:', error);
+          setError('Failed to parse CSV data. Please check the file format.');
           setLoading(false);
         }
       });
     } catch (error) {
       console.error('Error loading CSV:', error);
+      setError(`Failed to load CSV file: ${error.message}`);
       setLoading(false);
     }
   };
@@ -137,9 +161,51 @@ const TripMap = () => {
         justifyContent: 'center', 
         alignItems: 'center', 
         height: '100vh',
-        fontSize: '18px'
+        fontSize: '18px',
+        flexDirection: 'column',
+        gap: '20px'
       }}>
-        Loading trip data...
+        <div>Loading trip data...</div>
+        <div style={{ fontSize: '14px', color: '#666' }}>
+          This may take a moment for large files
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh',
+        fontSize: '18px',
+        flexDirection: 'column',
+        gap: '20px',
+        textAlign: 'center',
+        padding: '20px'
+      }}>
+        <div style={{ color: '#d32f2f' }}>Error Loading Data</div>
+        <div style={{ fontSize: '14px', color: '#666' }}>{error}</div>
+        <button 
+          onClick={() => {
+            setError(null);
+            setLoading(true);
+            loadTripData();
+          }}
+          style={{
+            padding: '10px 20px',
+            background: '#2196F3',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontSize: '14px'
+          }}
+        >
+          Try Again
+        </button>
       </div>
     );
   }
@@ -169,6 +235,11 @@ const TripMap = () => {
           <p style={{ margin: '0 0 5px 0', fontSize: '12px', color: '#666' }}>
             Sampling: 1 in {samplingRate} data points
           </p>
+          {dataSource && (
+            <p style={{ margin: '0 0 5px 0', fontSize: '12px', color: '#666' }}>
+              Data: {dataSource}
+            </p>
+          )}
           <button 
             onClick={() => setShowStats(!showStats)}
             style={{
