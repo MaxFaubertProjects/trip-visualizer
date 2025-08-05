@@ -20,7 +20,7 @@ const TripMap = () => {
   const [filteredTrips, setFilteredTrips] = useState([]);
   const [speedFilter, setSpeedFilter] = useState({ min: 0, max: 200 });
   const [weatherFilter, setWeatherFilter] = useState('all');
-  const [samplingRate, setSamplingRate] = useState(3600);
+  const [samplingRate, setSamplingRate] = useState(100);
   const [error, setError] = useState(null);
   const [dataSource, setDataSource] = useState(null);
 
@@ -30,42 +30,60 @@ const TripMap = () => {
 
   const loadTripData = async () => {
     try {
-      // Try to load the smaller sample file first
-      let response = await fetch('/sample_trip_data.csv');
+      // Try to load the test file first for debugging
+      let response = await fetch('/test_data.csv');
       
       if (!response.ok) {
-        // Fallback to the original file
-        response = await fetch('/enhanced_merged_trip_data_fixed.csv');
+        // Try the clean sample file
+        response = await fetch('/clean_sample_data.csv');
         
         if (!response.ok) {
-          throw new Error(`Failed to load CSV file: ${response.status} ${response.statusText}`);
+          // Fallback to the original file
+          response = await fetch('/enhanced_merged_trip_data_fixed.csv');
+          
+          if (!response.ok) {
+            throw new Error(`Failed to load CSV file: ${response.status} ${response.statusText}`);
+          }
+          setDataSource('enhanced_merged_trip_data_fixed.csv');
+        } else {
+          setDataSource('clean_sample_data.csv');
         }
-        setDataSource('enhanced_merged_trip_data_fixed.csv');
       } else {
-        setDataSource('sample_trip_data.csv');
+        setDataSource('test_data.csv');
       }
       
       const csvText = await response.text();
+      console.log('CSV text length:', csvText.length);
+      console.log('First 500 characters:', csvText.substring(0, 500));
       
       Papa.parse(csvText, {
         header: true,
+        skipEmptyLines: true,
         complete: (results) => {
-          // Sample data by taking every 3600th line to improve performance
+          console.log('Raw parsed results:', results);
+          console.log('Number of rows before filtering:', results.data.length);
+          
+          // Sample data by taking every Nth line to improve performance
           const sampledData = results.data.filter((row, index) => {
             // Keep header row and every Nth data point based on sampling rate
             return index === 0 || (index % samplingRate === 0);
-          }).filter(row => 
-            row.longitude && row.latitude && 
-            !isNaN(parseFloat(row.longitude)) && 
-            !isNaN(parseFloat(row.latitude))
-          );
+          }).filter(row => {
+            const hasCoords = row.longitude && row.latitude;
+            const validCoords = !isNaN(parseFloat(row.longitude)) && !isNaN(parseFloat(row.latitude));
+            if (!hasCoords || !validCoords) {
+              console.log('Filtered out row:', row);
+            }
+            return hasCoords && validCoords;
+          });
           
           console.log(`Original data points: ${results.data.length}`);
           console.log(`Sampled data points: ${sampledData.length}`);
           console.log(`Sampling ratio: 1 in ${samplingRate}`);
+          console.log('Sample of valid data:', sampledData.slice(0, 3));
           
           if (sampledData.length === 0) {
             console.error('No valid data points found after filtering');
+            setError('No valid trip data found. Please check the CSV file format.');
             setLoading(false);
             return;
           }
