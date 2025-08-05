@@ -28,7 +28,7 @@ const TripMap = () => {
   const [filteredTrips, setFilteredTrips] = useState([]);
   const [speedFilter, setSpeedFilter] = useState({ min: 0, max: 200 });
   const [weatherFilter, setWeatherFilter] = useState('all');
-  const [samplingRate, setSamplingRate] = useState(100);
+  const [samplingRate, setSamplingRate] = useState(50);
   const [error, setError] = useState(null);
   const [dataSource, setDataSource] = useState(null);
 
@@ -38,9 +38,25 @@ const TripMap = () => {
 
   const loadTripData = async () => {
     try {
-      // Use embedded test data to avoid file loading issues
-      const csvText = embeddedTestData;
-      console.log('Using embedded test data');
+      // Try to load the full dataset first
+      let csvText;
+      let dataSourceName;
+      
+      try {
+        const response = await fetch('/enhanced_merged_trip_data_fixed.csv');
+        if (response.ok) {
+          csvText = await response.text();
+          dataSourceName = 'Full Dataset (enhanced_merged_trip_data_fixed.csv)';
+          console.log('Loading full dataset from CSV file');
+        } else {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+      } catch (fileError) {
+        console.log('File loading failed, using embedded test data:', fileError);
+        csvText = embeddedTestData;
+        dataSourceName = 'Embedded Test Data (fallback)';
+      }
+      
       console.log('CSV text length:', csvText.length);
       console.log('First 500 characters:', csvText.substring(0, 500));
       
@@ -77,7 +93,7 @@ const TripMap = () => {
           }
           
           setTripData(sampledData);
-          setDataSource('Embedded Test Data');
+          setDataSource(dataSourceName);
           setLoading(false);
         },
         error: (error) => {
@@ -247,6 +263,14 @@ const TripMap = () => {
               Data: {dataSource}
             </p>
           )}
+          <div style={{ fontSize: '12px', color: '#666' }}>
+            Click on markers to see trip details
+          </div>
+          {dataSource && dataSource.includes('Full Dataset') && (
+            <div style={{ fontSize: '11px', color: '#888', marginTop: '5px' }}>
+              ⚡ Using sampled data for performance
+            </div>
+          )}
           <button 
             onClick={() => setShowStats(!showStats)}
             style={{
@@ -333,10 +357,6 @@ const TripMap = () => {
             </div>
           </div>
         )}
-
-        <div style={{ fontSize: '12px', color: '#666' }}>
-          Click on markers to see trip details
-        </div>
       </div>
 
       <MapContainer
