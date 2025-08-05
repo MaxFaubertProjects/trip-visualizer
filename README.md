@@ -1,70 +1,103 @@
-# Getting Started with Create React App
+# Trip Visualizer
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+An interactive web application for visualizing trip data on an interactive map using React and Leaflet.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- **Interactive Map**: View trip routes on an interactive map using OpenStreetMap tiles
+- **Trip Visualization**: Each trip is displayed as a colored path with speed-based markers
+- **Speed Color Coding**: Markers are color-coded based on speed:
+  - Green: < 20 km/h
+  - Orange: 20-60 km/h  
+  - Red: > 60 km/h
+- **Detailed Popups**: Click on any marker to see detailed information including:
+  - Timestamp
+  - Speed
+  - Temperature
+  - Weather conditions
+  - Elevation
+  - Humidity
+  - Pressure
+- **Trip Statistics**: View comprehensive statistics for each trip including:
+  - Maximum and average speed
+  - Temperature range
+  - Elevation range
+  - Trip duration
+- **Filtering Options**: Filter trips by:
+  - Speed range
+  - Weather conditions
+- **Responsive Design**: Works on desktop and mobile devices
 
-### `npm start`
+## Data Format
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+The application expects a CSV file with the following columns:
+- `trip`: Trip identifier
+- `timestamp`: Timestamp of the data point
+- `longitude`: Longitude coordinate
+- `latitude`: Latitude coordinate
+- `speed_kmh`: Speed in kilometers per hour
+- `temperature_c`: Temperature in Celsius
+- `weather_condition`: Weather condition description
+- `elevation_m`: Elevation in meters
+- `humidity_percent`: Humidity percentage
+- `pressure_hpa`: Pressure in hectopascals
+- `fsd_active`: FSD active status
+- `video_on`: Video recording status
+- `fsd_event`: FSD event information
+- `source_file`: Source file name
+- `wind_speed_kmh`: Wind speed in km/h
+- `wind_direction_degrees`: Wind direction in degrees
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Installation and Setup
 
-### `npm test`
+1. **Prerequisites**: Make sure you have Node.js installed on your system
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+2. **Install Dependencies**:
+   ```bash
+   npm install
+   ```
 
-### `npm run build`
+3. **Add Your Data**: Place your CSV file in the `public/` directory and name it `enhanced_merged_trip_data_fixed.csv`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+4. **Start the Development Server**:
+   ```bash
+   npm start
+   ```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+5. **Open in Browser**: The application will open automatically at `http://localhost:3000`
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Usage
 
-### `npm run eject`
+1. **View Trips**: The map will automatically load and display all trips from your CSV file
+2. **Interact with Markers**: Click on any marker to see detailed information about that data point
+3. **Use Filters**: Click "Show Statistics" to access filtering options:
+   - Adjust speed range to focus on specific speed ranges
+   - Select weather conditions to filter by weather
+4. **Explore Trip Details**: Click on start/end markers to see comprehensive trip statistics
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Technical Details
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- **Frontend**: React 18 with functional components and hooks
+- **Mapping**: React-Leaflet for interactive maps
+- **Data Parsing**: PapaParse for CSV parsing
+- **Styling**: Inline styles for responsive design
+- **Map Tiles**: OpenStreetMap tiles for base map
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Customization
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+You can customize the application by:
 
-## Learn More
+1. **Changing Colors**: Modify the `getTripColor` function to use different color schemes
+2. **Adjusting Speed Thresholds**: Update the `getSpeedColor` function to change speed-based color coding
+3. **Adding New Filters**: Extend the filtering system by adding new filter states and logic
+4. **Modifying Popup Content**: Update the popup components to show different or additional information
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Troubleshooting
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+- **Data Not Loading**: Ensure your CSV file is in the `public/` directory and named correctly
+- **Map Not Displaying**: Check that all dependencies are installed correctly
+- **Performance Issues**: For large datasets, consider implementing data sampling or pagination
 
-### Code Splitting
+## License
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+This project is open source and available under the MIT License.
