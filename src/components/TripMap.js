@@ -12,6 +12,14 @@ L.Icon.Default.mergeOptions({
   shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
 });
 
+// Embedded test data to avoid file loading issues
+const embeddedTestData = `trip,timestamp,longitude,latitude,fsd_active,video_on,fsd_event,source_file,speed_kmh,elevation_m,temperature_c,humidity_percent,pressure_hpa,weather_condition,wind_speed_kmh,wind_direction_degrees
+0,2025-07-27 09:22:26,-118.59660929312614,34.18502367292392,True,False,,trip_log_Day1_iPhone.csv,0.0,264.0,27.490951230638725,43.96732365477115,1016.5247914226235,Partly Cloudy,10.21881359722768,171.18759752435653
+0,2025-07-27 09:22:27,-118.59660929312614,34.18502367292392,False,False,,trip_log_Day1_iPhone.csv,0.0,264.08672798948754,27.490951230638725,43.96732365477115,1016.5247914226235,Partly Cloudy,10.21881359722768,171.18759752435653
+1,2025-07-27 11:27:08,-118.34264982154632,34.091550704663966,False,False,,trip_log_Day1_iPhone.csv,12.326951188244438,264.173455978975,27.945149422173927,32.68570910087685,1014.2963775306212,Partly Cloudy,17.67217372911078,196.09968214932775
+1,2025-07-27 11:27:09,-118.34265284694855,34.09154189334881,False,True,,trip_log_Day1_iPhone.csv,3.659339152495905,264.26018396846257,27.945149422173927,32.68570910087685,1014.2963775306212,Partly Cloudy,17.67217372911078,196.09968214932775
+2,2025-07-27 12:15:30,-118.12345678901234,34.09876543210987,False,False,,trip_log_Day1_iPhone.csv,25.5,265.0,28.5,45.0,1015.0,Sunny,15.0,180.0`;
+
 const TripMap = () => {
   const [tripData, setTripData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -30,29 +38,9 @@ const TripMap = () => {
 
   const loadTripData = async () => {
     try {
-      // Try to load the test file first for debugging
-      let response = await fetch('/test_data.csv');
-      
-      if (!response.ok) {
-        // Try the clean sample file
-        response = await fetch('/clean_sample_data.csv');
-        
-        if (!response.ok) {
-          // Fallback to the original file
-          response = await fetch('/enhanced_merged_trip_data_fixed.csv');
-          
-          if (!response.ok) {
-            throw new Error(`Failed to load CSV file: ${response.status} ${response.statusText}`);
-          }
-          setDataSource('enhanced_merged_trip_data_fixed.csv');
-        } else {
-          setDataSource('clean_sample_data.csv');
-        }
-      } else {
-        setDataSource('test_data.csv');
-      }
-      
-      const csvText = await response.text();
+      // Use embedded test data to avoid file loading issues
+      const csvText = embeddedTestData;
+      console.log('Using embedded test data');
       console.log('CSV text length:', csvText.length);
       console.log('First 500 characters:', csvText.substring(0, 500));
       
@@ -89,6 +77,7 @@ const TripMap = () => {
           }
           
           setTripData(sampledData);
+          setDataSource('Embedded Test Data');
           setLoading(false);
         },
         error: (error) => {
