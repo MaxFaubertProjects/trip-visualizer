@@ -67,9 +67,7 @@ const embeddedOptimizedData = `trip,timestamp,longitude,latitude,speed_kmh,tempe
 const TripMap = () => {
   const [tripData, setTripData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedTrip, setSelectedTrip] = useState(null);
   const [showStats, setShowStats] = useState(false);
-  const [filteredTrips, setFilteredTrips] = useState([]);
   const [speedFilter, setSpeedFilter] = useState({ min: 0, max: 200 });
   const [weatherFilter, setWeatherFilter] = useState('all');
   const [samplingRate, setSamplingRate] = useState(10);
