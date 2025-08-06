@@ -82,10 +82,10 @@ const TripMap = () => {
 
   const loadTripData = async () => {
     try {
-      // Use embedded data directly - no file loading
+      // Use embedded data directly - no file loading (v2.0)
       const csvText = embeddedOptimizedData;
       const dataSourceName = 'Embedded Optimized Data (500 data points)';
-      console.log('Loading embedded optimized dataset');
+      console.log('Loading embedded optimized dataset v2.0');
       
       console.log('CSV text length:', csvText.length);
       console.log('First 500 characters:', csvText.substring(0, 500));
