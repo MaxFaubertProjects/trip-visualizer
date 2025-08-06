@@ -81,33 +81,11 @@ const TripMap = () => {
   }, []);
 
   const loadTripData = async () => {
-          try {
-        // Try to load the optimized GitHub sample first
-        let csvText;
-        let dataSourceName;
-        
-        try {
-          let response = await fetch('/small_sample.csv');
-          if (response.ok) {
-            csvText = await response.text();
-            dataSourceName = 'GitHub Sample (100 data points)';
-            console.log('Loading GitHub sample dataset');
-          } else {
-            // Fallback to the full dataset
-            response = await fetch('/enhanced_merged_trip_data_fixed.csv');
-            if (response.ok) {
-              csvText = await response.text();
-              dataSourceName = 'Full Dataset (enhanced_merged_trip_data_fixed.csv)';
-              console.log('Loading full dataset from CSV file');
-            } else {
-              throw new Error(`HTTP error! status: ${response.status}`);
-            }
-          }
-        } catch (fileError) {
-          console.log('File loading failed, using embedded optimized data:', fileError);
-          csvText = embeddedOptimizedData;
-          dataSourceName = 'Embedded Optimized Data (50 data points)';
-        }
+    try {
+      // Use embedded data directly - no file loading
+      const csvText = embeddedOptimizedData;
+      const dataSourceName = 'Embedded Optimized Data (500 data points)';
+      console.log('Loading embedded optimized dataset');
       
       console.log('CSV text length:', csvText.length);
       console.log('First 500 characters:', csvText.substring(0, 500));
@@ -119,11 +97,8 @@ const TripMap = () => {
           console.log('Raw parsed results:', results);
           console.log('Number of rows before filtering:', results.data.length);
           
-          // Sample data by taking every Nth line to improve performance
-          const sampledData = results.data.filter((row, index) => {
-            // Keep header row and every Nth data point based on sampling rate
-            return index === 0 || (index % samplingRate === 0);
-          }).filter(row => {
+          // Use all data points since we're using pre-sampled embedded data
+          const sampledData = results.data.filter(row => {
             const hasCoords = row.longitude && row.latitude;
             const validCoords = !isNaN(parseFloat(row.longitude)) && !isNaN(parseFloat(row.latitude));
             if (!hasCoords || !validCoords) {
@@ -132,9 +107,8 @@ const TripMap = () => {
             return hasCoords && validCoords;
           });
           
-          console.log(`Original data points: ${results.data.length}`);
-          console.log(`Sampled data points: ${sampledData.length}`);
-          console.log(`Sampling ratio: 1 in ${samplingRate}`);
+          console.log(`Total data points: ${results.data.length}`);
+          console.log(`Valid data points: ${sampledData.length}`);
           console.log('Sample of valid data:', sampledData.slice(0, 3));
           
           if (sampledData.length === 0) {
