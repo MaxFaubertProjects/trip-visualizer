@@ -28,7 +28,7 @@ const TripMap = () => {
   const [filteredTrips, setFilteredTrips] = useState([]);
   const [speedFilter, setSpeedFilter] = useState({ min: 0, max: 200 });
   const [weatherFilter, setWeatherFilter] = useState('all');
-  const [samplingRate, setSamplingRate] = useState(50);
+  const [samplingRate, setSamplingRate] = useState(10);
   const [error, setError] = useState(null);
   const [dataSource, setDataSource] = useState(null);
 
@@ -37,25 +37,33 @@ const TripMap = () => {
   }, []);
 
   const loadTripData = async () => {
-    try {
-      // Try to load the full dataset first
-      let csvText;
-      let dataSourceName;
-      
-      try {
-        const response = await fetch('/enhanced_merged_trip_data_fixed.csv');
-        if (response.ok) {
-          csvText = await response.text();
-          dataSourceName = 'Full Dataset (enhanced_merged_trip_data_fixed.csv)';
-          console.log('Loading full dataset from CSV file');
-        } else {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          try {
+        // Try to load the optimized GitHub sample first
+        let csvText;
+        let dataSourceName;
+        
+        try {
+          let response = await fetch('/github_sample.csv');
+          if (response.ok) {
+            csvText = await response.text();
+            dataSourceName = 'GitHub Sample (500 data points)';
+            console.log('Loading GitHub sample dataset');
+          } else {
+            // Fallback to the full dataset
+            response = await fetch('/enhanced_merged_trip_data_fixed.csv');
+            if (response.ok) {
+              csvText = await response.text();
+              dataSourceName = 'Full Dataset (enhanced_merged_trip_data_fixed.csv)';
+              console.log('Loading full dataset from CSV file');
+            } else {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+          }
+        } catch (fileError) {
+          console.log('File loading failed, using embedded test data:', fileError);
+          csvText = embeddedTestData;
+          dataSourceName = 'Embedded Test Data (fallback)';
         }
-      } catch (fileError) {
-        console.log('File loading failed, using embedded test data:', fileError);
-        csvText = embeddedTestData;
-        dataSourceName = 'Embedded Test Data (fallback)';
-      }
       
       console.log('CSV text length:', csvText.length);
       console.log('First 500 characters:', csvText.substring(0, 500));
