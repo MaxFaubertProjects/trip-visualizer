@@ -43,10 +43,10 @@ const TripMap = () => {
         let dataSourceName;
         
         try {
-          let response = await fetch('/github_sample.csv');
+          let response = await fetch('/small_sample.csv');
           if (response.ok) {
             csvText = await response.text();
-            dataSourceName = 'GitHub Sample (500 data points)';
+            dataSourceName = 'GitHub Sample (100 data points)';
             console.log('Loading GitHub sample dataset');
           } else {
             // Fallback to the full dataset
